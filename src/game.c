@@ -112,16 +112,17 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
     SDL_RenderPresent(renderer);
 }
 
-void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t killcount)
+void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool *bullet_active)
 {
 
     for (size_t i=0; i<ENEMY_NUMBER; i++)
     {
         if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)))
         {
-            killcount++;
+            (*killcount)++;
             enemies[i].x = SCREEN_WIDTH+1;
-            enemies[i].y = SCREEN_HEIGHT+1;
+            enemies[i].vy = 0;
+            (*bullet_active) = false; 
         }
     }
 }
@@ -133,4 +134,13 @@ void cleanup(SDL_Window *window, SDL_Renderer *renderer)
     if (window)
         SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+bool has_lost(Entity_enemy *enemies){
+    for (size_t i=0; i<ENEMY_NUMBER; i++){
+        if (enemies[i].y>600){
+            return true;
+        }
+    }
+    return false;
 }

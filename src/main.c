@@ -53,15 +53,21 @@ int main(void)
         render(renderer, &player, &bullet, bullet_active, enemies);
         if (bullet_active)
         {
-            enemy_is_touched(&bullet, enemies, killcount);
+            enemy_is_touched(&bullet, enemies, &killcount, &bullet_active);
         }
 //vérifie la condition de victoire
         if (killcount >= ENEMY_NUMBER){
-            printf("YOU WIN");
+            printf("YOU WIN \n");
+            running = false;
+        }
+//vérifie la condition de défaite
+        if (has_lost(enemies)){
+            printf("YOU LOSE, LOSER \n");
             running = false;
         }
     }
 
     cleanup(window, renderer);
+    free(enemies);
     return 0;
 }
