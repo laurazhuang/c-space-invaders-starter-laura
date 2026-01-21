@@ -31,6 +31,7 @@ typedef struct
     float x, y;
     float vy;
     int w, h;
+    bool alive;
 } Entity_enemy;
 
 #endif

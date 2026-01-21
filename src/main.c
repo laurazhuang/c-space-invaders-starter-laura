@@ -34,6 +34,7 @@ int main(void)
         enemies[i].vy = ENEMY_SPEED;
         enemies[i].h = ENEMY_HEIGHT;
         enemies[i].w = ENEMY_WIDTH;
+        enemies[i].alive = true;
         }
 
     size_t killcount = 0;

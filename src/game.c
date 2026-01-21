@@ -92,13 +92,18 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer, &player_rect);
 
-    for (size_t i = 0; i<ENEMY_NUMBER ; i++){
-        SDL_Rect enemy_rect = {
+    for (size_t i = 0; i<ENEMY_NUMBER ; i++)
+    {
+        if(enemies[i].alive)
+        {
+            SDL_Rect enemy_rect = {
             (int)enemies[i].x, (int)enemies[i].y,
             enemies[i].w, enemies[i].h};
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderFillRect(renderer, &enemy_rect);
+        }
     }
+        
 
     if (bullet_active)
     {
@@ -117,10 +122,11 @@ void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *kill
 
     for (size_t i=0; i<ENEMY_NUMBER; i++)
     {
-        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)))
+        // ce long if vérifie si la balle touche bien l'ennemi et si l'ennemi est bien vivant
+        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)) && (enemies[i].alive))
         {
             (*killcount)++;
-            enemies[i].x = SCREEN_WIDTH+1;
+            enemies[i].alive = false;
             enemies[i].vy = 0;
             (*bullet_active) = false; 
         }
