@@ -31,7 +31,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active)
+void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity *bullet, bool *bullet_active)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -57,7 +57,10 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
     }
 }
 
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt)
+
+
+
+void update(Entity_player *player, Entity *bullet, bool *bullet_active, float dt, Entity enemies[])
 {
     player->x += player->vx * dt;
 
@@ -72,9 +75,13 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt)
         if (bullet->y + bullet->h < 0)
             *bullet_active = false;
     }
+
+    for(size_t i=0; i<ENEMY_NUMBER; i++){
+        enemies[i].y += enemies[i].vy*dt;
+    }
 }
 
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active)
+void render(SDL_Renderer *renderer, Entity_player *player, Entity *bullet, bool bullet_active, Entity enemies[])
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -84,6 +91,20 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         player->w, player->h};
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer, &player_rect);
+
+/*     SDL_Rect enemy_rect = {
+        (int)enemies[0].x, (int)enemies[0].y,
+        enemies[0].w, enemies[0].h};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &enemy_rect); */
+
+    for (size_t i = 0; i<ENEMY_NUMBER ; i++){
+        SDL_Rect enemy_rect = {
+            (int)enemies[i].x, (int)enemies[i].y,
+            enemies[i].w, enemies[i].h};
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &enemy_rect);
+    }
 
     if (bullet_active)
     {
