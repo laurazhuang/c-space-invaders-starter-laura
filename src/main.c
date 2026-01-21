@@ -23,20 +23,20 @@ int main(void)
         .h = PLAYER_HEIGHT,
         .vx = 0};
 
-    Entity bullet = {0};
+    Entity_bullet bullet = {0};
     bool bullet_active = false;
 
     //on crée les ennemis sur une seule ligne
-    Entity enemies[ENEMY_NUMBER];
+    Entity_enemy *enemies = malloc(ENEMY_NUMBER * sizeof(Entity_enemy));
     for(size_t i=0; i<ENEMY_NUMBER; i++){
         enemies[i].x = (10+ENEMY_WIDTH)*(i+1); 
         enemies[i].y = 10;
         enemies[i].vy = ENEMY_SPEED;
-        enemies[i].vx = 0;
         enemies[i].h = ENEMY_HEIGHT;
         enemies[i].w = ENEMY_WIDTH;
         }
 
+    size_t killcount = 0;
 
     while (running)
     {
@@ -51,6 +51,15 @@ int main(void)
         handle_input(&running, keys, &player, &bullet, &bullet_active);
         update(&player, &bullet, &bullet_active, dt, enemies);
         render(renderer, &player, &bullet, bullet_active, enemies);
+        if (bullet_active)
+        {
+            enemy_is_touched(&bullet, enemies, killcount);
+        }
+//vérifie la condition de victoire
+        if (killcount >= ENEMY_NUMBER){
+            printf("YOU WIN");
+            running = false;
+        }
     }
 
     cleanup(window, renderer);

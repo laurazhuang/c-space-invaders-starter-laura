@@ -31,7 +31,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity *bullet, bool *bullet_active)
+void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -60,7 +60,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
 
 
 
-void update(Entity_player *player, Entity *bullet, bool *bullet_active, float dt, Entity enemies[])
+void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[])
 {
     player->x += player->vx * dt;
 
@@ -81,7 +81,7 @@ void update(Entity_player *player, Entity *bullet, bool *bullet_active, float dt
     }
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity *bullet, bool bullet_active, Entity enemies[])
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[])
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -91,12 +91,6 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity *bullet, bool 
         player->w, player->h};
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer, &player_rect);
-
-/*     SDL_Rect enemy_rect = {
-        (int)enemies[0].x, (int)enemies[0].y,
-        enemies[0].w, enemies[0].h};
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &enemy_rect); */
 
     for (size_t i = 0; i<ENEMY_NUMBER ; i++){
         SDL_Rect enemy_rect = {
@@ -116,6 +110,20 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity *bullet, bool 
     }
 
     SDL_RenderPresent(renderer);
+}
+
+void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t killcount)
+{
+
+    for (size_t i=0; i<ENEMY_NUMBER; i++)
+    {
+        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)))
+        {
+            killcount++;
+            enemies[i].x = SCREEN_WIDTH+1;
+            enemies[i].y = SCREEN_HEIGHT+1;
+        }
+    }
 }
 
 void cleanup(SDL_Window *window, SDL_Renderer *renderer)

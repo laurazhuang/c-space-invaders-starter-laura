@@ -8,5 +8,30 @@ typedef struct
     int w, h;
 } Entity;
 
+typedef struct
+{
+    float x, y;
+    float vx;
+    int w, h;
+    int health;
+} Entity_player;
+
+
+typedef struct
+{
+    float x, y;
+    float vy;
+    int w, h;
+} Entity_bullet;
+
+
+
+typedef struct
+{
+    float x, y;
+    float vy;
+    int w, h;
+} Entity_enemy;
+
 #endif
 
