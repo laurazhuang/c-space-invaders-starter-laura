@@ -2,6 +2,8 @@
 #include "game.h"
 #include <stdio.h>
 
+
+//rendu graphique
 bool init(SDL_Window **window, SDL_Renderer **renderer)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -31,6 +33,61 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active)
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Rect player_rect = {
+        (int)player->x, (int)player->y,
+        player->w, player->h};
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &player_rect);
+
+    for (size_t i = 0; i<ENEMY_NUMBER ; i++)
+    {
+        if(enemies[i].alive)
+        {
+            SDL_Rect enemy_rect = {
+            (int)enemies[i].x, (int)enemies[i].y,
+            enemies[i].w, enemies[i].h};
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &enemy_rect);
+        }
+    }
+    
+    for (int i=0; i<player->health; i++)
+    {
+        SDL_Rect healthpool ={
+            (int)SCREEN_WIDTH-10-12*(i+1), (int)10,
+            10, 20};
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &healthpool);
+    }
+
+    if (bullet_active)
+    {
+        SDL_Rect bullet_rect = {
+            (int)bullet->x, (int)bullet->y,
+            bullet->w, bullet->h};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &bullet_rect);
+    }
+
+    if (enemy_bullet_active){
+        SDL_Rect bullete_rect = {
+            (int)enemy_bullet->x, (int)enemy_bullet->y,
+            enemy_bullet->w, enemy_bullet->h};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &bullete_rect);
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
+
+
+//gestion des entrées
 void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active)
 {
     SDL_Event event;
@@ -57,9 +114,16 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
     }
 }
 
+
+
+
+
+//logique de jeu
+
+//détermine si l'ennemi doit tirer
 void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *ticks_depuis_dernier_tir, Entity_enemy *enemies)
 {
-    if (*ticks_depuis_dernier_tir > 10){
+    if (*ticks_depuis_dernier_tir > 500){
         *enemy_bullet_active = true;
         int i_tire = rand() % ENEMY_NUMBER;
         while (!enemies[i_tire].alive)
@@ -75,6 +139,7 @@ void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *tic
     }
 }
 
+//update toutes les positions du joueur, des ennemis et des bullet
 void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active)
 {
     player->x += player->vx * dt;
@@ -119,50 +184,6 @@ void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, f
 
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active)
-{
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_Rect player_rect = {
-        (int)player->x, (int)player->y,
-        player->w, player->h};
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderFillRect(renderer, &player_rect);
-
-    for (size_t i = 0; i<ENEMY_NUMBER ; i++)
-    {
-        if(enemies[i].alive)
-        {
-            SDL_Rect enemy_rect = {
-            (int)enemies[i].x, (int)enemies[i].y,
-            enemies[i].w, enemies[i].h};
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &enemy_rect);
-        }
-    }
-    
-    
-
-    if (bullet_active)
-    {
-        SDL_Rect bullet_rect = {
-            (int)bullet->x, (int)bullet->y,
-            bullet->w, bullet->h};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &bullet_rect);
-    }
-
-    if (enemy_bullet_active){
-        SDL_Rect bullete_rect = {
-            (int)enemy_bullet->x, (int)enemy_bullet->y,
-            enemy_bullet->w, enemy_bullet->h};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &bullete_rect);
-    }
-
-    SDL_RenderPresent(renderer);
-}
 
 void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool *bullet_active)
 {
@@ -170,7 +191,7 @@ void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *kill
     for (size_t i=0; i<ENEMY_NUMBER; i++)
     {
         // ce long if vérifie si la balle touche bien l'ennemi et si l'ennemi est bien vivant
-        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)) && (enemies[i].y > bullet->y +bullet->h) && (enemies[i].alive))
+        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)) && (enemies[i].y < bullet->y + bullet->h) && (enemies[i].alive))
         {
             (*killcount)++;
             enemies[i].alive = false;

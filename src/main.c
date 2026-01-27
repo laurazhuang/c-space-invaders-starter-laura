@@ -56,12 +56,12 @@ int main(void)
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active);
         update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active);
-        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, &enemy_bullet_active);
+        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active);
         if (bullet_active)
         {
             enemy_is_touched(&bullet, enemies, &killcount, &bullet_active);
         }
-//vérifie la condition de victoire
+
         if (enemy_bullet_active)
         {
             player_is_touched(&enemy_bullet, &player, &enemy_bullet_active);
@@ -71,6 +71,7 @@ int main(void)
             enemy_tire(&enemy_bullet_active, &enemy_bullet, &ticks_depuis_dernier_tir, enemies);
         }
 
+//vérifie la condition de victoire
         if (killcount >= ENEMY_NUMBER){
             printf("YOU WIN \n");
             running = false;
