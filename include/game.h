@@ -21,10 +21,12 @@
 #define ENEMY_WIDTH 40
 #define ENEMY_HEIGHT 20
 #define ENEMY_SPEED 50.0f
-#define ENEMY_NUMBER 10
+#define ENEMY_NUMBER_PER_LINE 10
+#define ENEMY_LINES 4
+#define ENEMY_NUMBER ENEMY_NUMBER_PER_LINE*ENEMY_LINES
 
 
-
+void spawn_enemies(Entity_enemy *enemies);
 bool init(SDL_Window **window, SDL_Renderer **renderer);
 void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active);
 void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active);

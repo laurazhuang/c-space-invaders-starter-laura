@@ -33,14 +33,7 @@ int main(void)
 
     //on crée les ennemis sur une seule ligne
     Entity_enemy *enemies = malloc(ENEMY_NUMBER * sizeof(Entity_enemy));
-    for(size_t i=0; i<ENEMY_NUMBER; i++){
-        enemies[i].x = (10+ENEMY_WIDTH)*(i+1); 
-        enemies[i].y = 50;
-        enemies[i].vx = ENEMY_SPEED;
-        enemies[i].h = ENEMY_HEIGHT;
-        enemies[i].w = ENEMY_WIDTH;
-        enemies[i].alive = true;
-        }
+    spawn_enemies(enemies);
 
     size_t killcount = 0;
 
