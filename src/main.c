@@ -15,23 +15,28 @@ int main(void)
 
     bool running = true;
     Uint32 last_ticks = SDL_GetTicks();
+    srand(time(NULL));
 
     Entity_player player = {
         .x = SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2,
         .y = SCREEN_HEIGHT - 60,
         .w = PLAYER_WIDTH,
         .h = PLAYER_HEIGHT,
-        .vx = 0};
+        .vx = 0,
+        .health = 3};
 
     Entity_bullet bullet = {0};
+    Entity_bullet enemy_bullet = {0};
     bool bullet_active = false;
+    bool enemy_bullet_active = false;
+    int ticks_depuis_dernier_tir = 0;
 
     //on crée les ennemis sur une seule ligne
     Entity_enemy *enemies = malloc(ENEMY_NUMBER * sizeof(Entity_enemy));
     for(size_t i=0; i<ENEMY_NUMBER; i++){
         enemies[i].x = (10+ENEMY_WIDTH)*(i+1); 
-        enemies[i].y = 10;
-        enemies[i].vy = ENEMY_SPEED;
+        enemies[i].y = 50;
+        enemies[i].vx = ENEMY_SPEED;
         enemies[i].h = ENEMY_HEIGHT;
         enemies[i].w = ENEMY_WIDTH;
         enemies[i].alive = true;
@@ -50,19 +55,28 @@ int main(void)
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active);
-        update(&player, &bullet, &bullet_active, dt, enemies);
-        render(renderer, &player, &bullet, bullet_active, enemies);
+        update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active);
+        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, &enemy_bullet_active);
         if (bullet_active)
         {
             enemy_is_touched(&bullet, enemies, &killcount, &bullet_active);
         }
 //vérifie la condition de victoire
+        if (enemy_bullet_active)
+        {
+            player_is_touched(&enemy_bullet, &player, &enemy_bullet_active);
+        }
+        else{
+            ticks_depuis_dernier_tir++;
+            enemy_tire(&enemy_bullet_active, &enemy_bullet, &ticks_depuis_dernier_tir, enemies);
+        }
+
         if (killcount >= ENEMY_NUMBER){
             printf("YOU WIN \n");
             running = false;
         }
 //vérifie la condition de défaite
-        if (has_lost(enemies)){
+        if (has_lost(enemies, &player)){
             printf("YOU LOSE, LOSER \n");
             running = false;
         }

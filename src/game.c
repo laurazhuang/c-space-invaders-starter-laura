@@ -57,10 +57,25 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
     }
 }
 
+void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *ticks_depuis_dernier_tir, Entity_enemy *enemies)
+{
+    if (*ticks_depuis_dernier_tir > 10){
+        *enemy_bullet_active = true;
+        int i_tire = rand() % ENEMY_NUMBER;
+        while (!enemies[i_tire].alive)
+        {
+            i_tire = rand()%ENEMY_NUMBER;
+        }
+        enemy_bullet->x = enemies[i_tire].x + enemies[i_tire].w/2 - BULLET_WIDTH/2;
+        enemy_bullet->y = enemies[i_tire].y;
+        enemy_bullet->w = BULLET_WIDTH;
+        enemy_bullet->h = BULLET_HEIGHT;
+        enemy_bullet->vy = BULLET_SPEED/2;
+        *ticks_depuis_dernier_tir = 0;
+    }
+}
 
-
-
-void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[])
+void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active)
 {
     player->x += player->vx * dt;
 
@@ -76,12 +91,35 @@ void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, f
             *bullet_active = false;
     }
 
-    for(size_t i=0; i<ENEMY_NUMBER; i++){
-        enemies[i].y += enemies[i].vy*dt;
+    if (*enemy_bullet_active){
+        enemy_bullet->y += enemy_bullet->vy*dt;
+        if (enemy_bullet->y > SCREEN_HEIGHT)
+        {
+            *enemy_bullet_active = false;
+        }
     }
+
+    bool touche_bord = false;
+    for(size_t i=0; i<ENEMY_NUMBER; i++){
+        if ((enemies[i].x<0 || (enemies[i].x+ENEMY_WIDTH) > SCREEN_WIDTH) && enemies[i].alive) {
+            touche_bord = true;
+            break;
+        }
+    }
+    for(size_t i=0; i<ENEMY_NUMBER; i++){
+        if (touche_bord && enemies[i].alive){
+            enemies[i].vx = -(enemies[i].vx + ENEMY_SPEED*0.2);
+            enemies[i].y += ENEMY_HEIGHT;
+        }
+        if(enemies[i].alive) {
+            enemies[i].x += enemies[i].vx*dt;
+        }
+    }
+    touche_bord = false;
+
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[])
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -103,7 +141,8 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
         SDL_RenderFillRect(renderer, &enemy_rect);
         }
     }
-        
+    
+    
 
     if (bullet_active)
     {
@@ -112,6 +151,14 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             bullet->w, bullet->h};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &bullet_rect);
+    }
+
+    if (enemy_bullet_active){
+        SDL_Rect bullete_rect = {
+            (int)enemy_bullet->x, (int)enemy_bullet->y,
+            enemy_bullet->w, enemy_bullet->h};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &bullete_rect);
     }
 
     SDL_RenderPresent(renderer);
@@ -123,13 +170,22 @@ void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *kill
     for (size_t i=0; i<ENEMY_NUMBER; i++)
     {
         // ce long if vérifie si la balle touche bien l'ennemi et si l'ennemi est bien vivant
-        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)) && (enemies[i].alive))
+        if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)) && (enemies[i].y > bullet->y +bullet->h) && (enemies[i].alive))
         {
             (*killcount)++;
             enemies[i].alive = false;
-            enemies[i].vy = 0;
+            enemies[i].vx = 0;
             (*bullet_active) = false; 
         }
+    }
+}
+
+void player_is_touched(Entity_bullet *enemy_bullet, Entity_player *player, bool *enemy_bullet_active)
+{
+    if(player->x+player->w > enemy_bullet->x && player->x < enemy_bullet->x + enemy_bullet->w && player->y<enemy_bullet->y+enemy_bullet->h && player->y + player->h >enemy_bullet->y)
+    {
+        player->health--;
+        *enemy_bullet_active = false;
     }
 }
 
@@ -142,11 +198,14 @@ void cleanup(SDL_Window *window, SDL_Renderer *renderer)
     SDL_Quit();
 }
 
-bool has_lost(Entity_enemy *enemies){
+bool has_lost(Entity_enemy *enemies, Entity_player *player){
     for (size_t i=0; i<ENEMY_NUMBER; i++){
         if (enemies[i].y>600){
             return true;
         }
+    }
+    if(player->health < 1){
+        return true;
     }
     return false;
 }
