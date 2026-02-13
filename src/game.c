@@ -75,7 +75,7 @@ void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *tic
 }
 
 //update toutes les positions du joueur, des ennemis et des bullet
-void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active)
+void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active, bool *heart_active, Entity_bullet *heart)
 {
     player->x += player->vx * dt;
 
@@ -96,6 +96,13 @@ void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, f
         if (enemy_bullet->y > SCREEN_HEIGHT)
         {
             *enemy_bullet_active = false;
+        }
+    }
+
+    if (*heart_active){
+        heart->y += heart->vy*dt;
+        if(heart->y > SCREEN_HEIGHT){
+            *heart_active = false;
         }
     }
 
@@ -123,6 +130,7 @@ void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, f
     }
 
 }
+
 
 //fait spawn les ennemis sur une grille
 void spawn_enemies(Entity_enemy enemies[]){
@@ -159,9 +167,20 @@ void spawn_enemies(Entity_enemy enemies[]){
     
 }
 
+void spawn_heart(bool *heart_active, Entity_bullet *heart, Entity_enemy *enemies, size_t i){
+    int spawn_or_not = rand() % 10;
+    if(*heart_active==0 && spawn_or_not==0){
+        *heart_active = 1;
+        heart->x = enemies[i].x;
+        heart->y = enemies[i].y;
+        heart->vy = ENEMY_SPEED*2;
+        heart->w = ENEMY_WIDTH;
+        heart->h = ENEMY_HEIGHT*0.5;
+    }
+}
 
 //détermine si l'ennemi est touché par le tir du joueur
-void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool *bullet_active)
+void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool *bullet_active, bool *heart_active, Entity_bullet *heart)
 {
 
     for (size_t i=0; i<ENEMY_NUMBER; i++)
@@ -176,6 +195,7 @@ void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *kill
                 (*killcount)++;
                 enemies[i].alive = false;
                 enemies[i].vx = 0;
+                spawn_heart(heart_active, heart, enemies, i);
             }
         }
     }
@@ -191,7 +211,15 @@ void player_is_touched(Entity_bullet *enemy_bullet, Entity_player *player, bool 
     }
 }
 
-//détermine si le joueur a perdue, soit parce que les ennemis ont atteint le bas, soit parce qu'il n'a plus de vie
+void player_is_healed(Entity_bullet *heart, Entity_player *player, bool *heart_active){
+    if(player->x+player->w > heart->x && player->x < heart->x + heart->w && player->y<heart->y+heart->h && player->y + player->h >heart->y)
+    {
+        player->health++;
+        *heart_active = false;
+    }
+}
+
+//détermine si le joueur a perdu, soit parce que les ennemis ont atteint le bas, soit parce qu'il n'a plus de vie
 bool has_lost(Entity_enemy *enemies, Entity_player *player){
     for (size_t i=0; i<ENEMY_NUMBER; i++){
         if (enemies[i].y>600){

@@ -48,7 +48,7 @@ typedef enum {
     START_MENU,
     GAME,
     LOST,
-    WON,
+    WIN,
 } Gamestate;
 
 #endif

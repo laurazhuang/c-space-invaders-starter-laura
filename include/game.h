@@ -26,16 +26,18 @@
 #define ENEMY_NUMBER ENEMY_NUMBER_PER_LINE*ENEMY_LINES
 
 
-void spawn_enemies(Entity_enemy *enemies);
+void spawn_enemies(Entity_enemy enemies[]);
 bool init(SDL_Window **window, SDL_Renderer **renderer);
 void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active, Gamestate *gamestate);
-void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active);
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate);
+void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active, bool *heart_active, Entity_bullet *heart);
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate, Entity_bullet heart, bool heart_active);
 void cleanup(SDL_Window *window, SDL_Renderer *renderer);
-void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool* bullet_active);
+void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool* bullet_active, bool *heart_active, Entity_bullet *heart);
 bool has_lost(Entity_enemy *enemies, Entity_player *player);
 void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *ticks_depuis_dernier_tir, Entity_enemy *enemies);
 void player_is_touched(Entity_bullet *enemy_bullet, Entity_player *player, bool *enemy_bullet_active);
+void player_is_healed(Entity_bullet *heart, Entity_player *player, bool *heart_active);
+void spawn_heart(bool *heart_active, Entity_bullet *heart, Entity_enemy *enemies, size_t i);
 void fontInit();
 
 #endif

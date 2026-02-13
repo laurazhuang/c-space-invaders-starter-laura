@@ -54,7 +54,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate)
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate, Entity_bullet heart, bool heart_active)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -72,16 +72,28 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
             SDL_RenderFillRect(renderer, &startmenu_case);
         
-        SDL_Surface* fontSurfaceStart = TTF_RenderText_Solid(fontSTART, "1)  START", fBlack);
+        SDL_Surface* fontSurfaceStart = TTF_RenderText_Solid(fontSTART, "1)      START", fBlack);
                 if (fontSurfaceStart) {
                     SDL_Texture* fontTextureStart = SDL_CreateTextureFromSurface(renderer, fontSurfaceStart);
-                    SDL_Rect fontRectStart = {150, 150, fontSurfaceStart->w, fontSurfaceStart->h};
+                    SDL_Rect fontRectStart = {170, 150, fontSurfaceStart->w, fontSurfaceStart->h};
                     SDL_RenderCopy(renderer, fontTextureStart, NULL, &fontRectStart);
                     SDL_DestroyTexture(fontTextureStart);
                     SDL_FreeSurface(fontSurfaceStart);
                 }
+
+        SDL_Surface* fontSurfaceMenu = TTF_RenderText_Solid(fontSTART, "Menu", fColor);
+                if (fontSurfaceMenu) {
+                    SDL_Texture* fontTextureMenu = SDL_CreateTextureFromSurface(renderer, fontSurfaceMenu);
+                    SDL_Rect fontRectMenu = {315, 55, fontSurfaceMenu->w, fontSurfaceMenu->h};
+                    SDL_RenderCopy(renderer, fontTextureMenu, NULL, &fontRectMenu);
+                    SDL_DestroyTexture(fontTextureMenu);
+                    SDL_FreeSurface(fontSurfaceMenu);
+                }
+                
+        
     }
     else if (gamestate==1) {
+
         SDL_Rect player_rect = {
             (int)player->x, (int)player->y,
             player->w, player->h};
@@ -135,13 +147,37 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderFillRect(renderer, &bullete_rect);
         }
+
+        if (heart_active){
+            SDL_Rect heart_rect = {
+                (int)heart.x, (int)heart.y,
+                heart.w, heart.h};
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &heart_rect);
+        }
+        
     }
+
     else if (gamestate==2){
-        SDL_Rect startmenu_rect = {
-                        100, 50,
-                        600, 500};
-            SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-            SDL_RenderFillRect(renderer, &startmenu_rect);
+        SDL_Surface* fontSurfaceLost = TTF_RenderText_Solid(fontSTART, "YOU LOSE", fColor);
+        if (fontSurfaceLost) {
+            SDL_Texture* fontTextureLost = SDL_CreateTextureFromSurface(renderer, fontSurfaceLost);
+            SDL_Rect fontRectLost = {268, 150, fontSurfaceLost->w, fontSurfaceLost->h};
+            SDL_RenderCopy(renderer, fontTextureLost, NULL, &fontRectLost);
+            SDL_DestroyTexture(fontTextureLost);
+            SDL_FreeSurface(fontSurfaceLost);
+            }
+    }
+
+    else if (gamestate==3){
+        SDL_Surface* fontSurfaceWin = TTF_RenderText_Solid(fontSTART, "YOU WIN", fColor);
+        if (fontSurfaceWin) {
+            SDL_Texture* fontTextureWin = SDL_CreateTextureFromSurface(renderer, fontSurfaceWin);
+            SDL_Rect fontRecWin = {280, 150, fontSurfaceWin->w, fontSurfaceWin->h};
+            SDL_RenderCopy(renderer, fontTextureWin, NULL, &fontRecWin);
+            SDL_DestroyTexture(fontTextureWin);
+            SDL_FreeSurface(fontSurfaceWin);
+            }
     }
     
     SDL_RenderPresent(renderer);
