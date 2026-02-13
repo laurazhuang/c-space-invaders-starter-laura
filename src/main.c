@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <stdbool.h>
 #include "entity.h"
 #include "game.h"
 
@@ -7,6 +8,8 @@ int main(void)
 {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
+
+    Gamestate gamestate = 0;
 
     if (!init(&window, &renderer))
     {
@@ -45,11 +48,10 @@ int main(void)
             dt = 0.05f;
         last_ticks = ticks;
 
-        SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active);
         update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active);
-        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active);
+        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active, gamestate);
         if (bullet_active)
         {
             enemy_is_touched(&bullet, enemies, &killcount, &bullet_active);

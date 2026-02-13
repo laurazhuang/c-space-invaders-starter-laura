@@ -44,5 +44,12 @@ typedef struct
     bool alive;
 } Entity_enemy;
 
+typedef enum {
+    START_MENU,
+    GAME,
+    LOST,
+    WON,
+} Gamestate;
+
 #endif
 
