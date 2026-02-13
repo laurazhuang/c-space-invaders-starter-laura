@@ -40,6 +40,8 @@ int main(void)
 
     size_t killcount = 0;
 
+    fontInit();
+
     while (running)
     {
         Uint32 ticks = SDL_GetTicks();
@@ -49,8 +51,10 @@ int main(void)
         last_ticks = ticks;
 
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active);
-        update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active);
+        handle_input(&running, keys, &player, &bullet, &bullet_active, &gamestate);
+        if(gamestate==1){
+            update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active);
+        }
         render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active, gamestate);
         if (bullet_active)
         {
