@@ -3,48 +3,6 @@
 #include <stdio.h>
 
 
-
-
-
-//gestion des entrées
-void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active, Gamestate *gamestate)
-{
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        if (event.type == SDL_QUIT)
-            *running = false;
-    }
-
-    if(*gamestate==0){
-        if(keys[SDL_SCANCODE_1]){
-            *gamestate=1;
-        }
-    }
-    else if (*gamestate==1){
-        player->vx = 0.0f;
-        if (keys[SDL_SCANCODE_LEFT])
-            player->vx = -PLAYER_SPEED;
-        if (keys[SDL_SCANCODE_RIGHT])
-            player->vx = PLAYER_SPEED;
-
-        if (keys[SDL_SCANCODE_SPACE] && !*bullet_active)
-        {
-            *bullet_active = true;
-            bullet->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
-            bullet->y = player->y;
-            bullet->w = BULLET_WIDTH;
-            bullet->h = BULLET_HEIGHT;
-            bullet->vy = -BULLET_SPEED;
-        }
-    }
-    
-}
-
-
-
-
-
 //logique de jeu
 
 //détermine si l'ennemi doit tirer
@@ -174,8 +132,8 @@ void spawn_heart(bool *heart_active, Entity_bullet *heart, Entity_enemy *enemies
         heart->x = enemies[i].x;
         heart->y = enemies[i].y;
         heart->vy = ENEMY_SPEED*2;
-        heart->w = ENEMY_WIDTH;
-        heart->h = ENEMY_HEIGHT*0.5;
+        heart->w = 16;
+        heart->h = 16;
     }
 }
 

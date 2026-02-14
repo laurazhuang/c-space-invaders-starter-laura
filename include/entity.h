@@ -49,7 +49,14 @@ typedef enum {
     GAME,
     LOST,
     WIN,
+    PAUSE,
 } Gamestate;
+
+typedef enum {
+    NEW_GAME,
+    LOAD_GAME,
+    QUIT,
+} Menustate;
 
 #endif
 

@@ -24,6 +24,17 @@ void fontInit(){
         fBlack.b = 0;
 }
 
+void display_text(TTF_Font* font, SDL_Color color, int x, int y, char text[], SDL_Renderer *renderer){
+    SDL_Surface* fontSurface = TTF_RenderText_Solid(font, text, color);
+            if (fontSurface) {
+                SDL_Texture* fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+                SDL_Rect fontRect = {x, y, fontSurface->w, fontSurface->h};
+                SDL_RenderCopy(renderer, fontTexture, NULL, &fontRect);
+                SDL_DestroyTexture(fontTexture);
+                SDL_FreeSurface(fontSurface);
+            }
+}
+
 //rendu graphique
 bool init(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -54,7 +65,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate, Entity_bullet heart, bool heart_active)
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate, Entity_bullet heart, bool heart_active, Menustate *menustate)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -66,30 +77,36 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
             SDL_RenderFillRect(renderer, &startmenu_rect);
         
-        SDL_Rect startmenu_case = {
-                        150, 150,
+        display_text(fontSTART, fColor, 315, 55, "Menu", renderer);
+        
+        display_text(fontSTART, fColor, 170, 150, "1)      NEW GAME", renderer);
+
+        display_text(fontSTART, fColor, 170, 250, "2)      LOAD GAME", renderer);
+
+        display_text(fontSTART, fColor, 170, 350, "3)      QUIT", renderer);
+        
+        SDL_Rect menu_case = {
+                        150, 150 + (*menustate) * 100,
                         500, 50};
             SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-            SDL_RenderFillRect(renderer, &startmenu_case);
-        
-        SDL_Surface* fontSurfaceStart = TTF_RenderText_Solid(fontSTART, "1)      START", fBlack);
-                if (fontSurfaceStart) {
-                    SDL_Texture* fontTextureStart = SDL_CreateTextureFromSurface(renderer, fontSurfaceStart);
-                    SDL_Rect fontRectStart = {170, 150, fontSurfaceStart->w, fontSurfaceStart->h};
-                    SDL_RenderCopy(renderer, fontTextureStart, NULL, &fontRectStart);
-                    SDL_DestroyTexture(fontTextureStart);
-                    SDL_FreeSurface(fontSurfaceStart);
-                }
+            SDL_RenderFillRect(renderer, &menu_case);
 
-        SDL_Surface* fontSurfaceMenu = TTF_RenderText_Solid(fontSTART, "Menu", fColor);
-                if (fontSurfaceMenu) {
-                    SDL_Texture* fontTextureMenu = SDL_CreateTextureFromSurface(renderer, fontSurfaceMenu);
-                    SDL_Rect fontRectMenu = {315, 55, fontSurfaceMenu->w, fontSurfaceMenu->h};
-                    SDL_RenderCopy(renderer, fontTextureMenu, NULL, &fontRectMenu);
-                    SDL_DestroyTexture(fontTextureMenu);
-                    SDL_FreeSurface(fontSurfaceMenu);
-                }
-                
+        switch (*menustate)
+        {
+        case NEW_GAME:
+            display_text(fontSTART, fBlack, 170, 150, "1)      NEW GAME", renderer);
+            break;
+        
+        case LOAD_GAME:
+            display_text(fontSTART, fBlack, 170, 250, "2)      LOAD GAME", renderer);
+            break;
+        
+        case QUIT:
+            display_text(fontSTART, fBlack, 170, 350, "3)      QUIT", renderer);
+        }
+        
+        
+
         
     }
     else if (gamestate==1) {
@@ -126,9 +143,11 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
         {
             SDL_Rect healthpool ={
                 (int)SCREEN_WIDTH-10-12*(i+1), (int)10,
-                10, 20};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderFillRect(renderer, &healthpool);
+                16, 16};
+            SDL_Surface *surface = IMG_Load("img/heart.png");
+            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_FreeSurface(surface);
+            SDL_RenderCopy(renderer, texture, NULL, &healthpool);
         }
 
         if (bullet_active)
@@ -152,34 +171,38 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             SDL_Rect heart_rect = {
                 (int)heart.x, (int)heart.y,
                 heart.w, heart.h};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderFillRect(renderer, &heart_rect);
+            SDL_Surface *surface = IMG_Load("img/heart.png");
+            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_FreeSurface(surface);
+            SDL_RenderCopy(renderer, texture, NULL, &heart_rect);
         }
         
     }
 
-    else if (gamestate==2){
-        SDL_Surface* fontSurfaceLost = TTF_RenderText_Solid(fontSTART, "YOU LOSE", fColor);
-        if (fontSurfaceLost) {
-            SDL_Texture* fontTextureLost = SDL_CreateTextureFromSurface(renderer, fontSurfaceLost);
-            SDL_Rect fontRectLost = {268, 150, fontSurfaceLost->w, fontSurfaceLost->h};
-            SDL_RenderCopy(renderer, fontTextureLost, NULL, &fontRectLost);
-            SDL_DestroyTexture(fontTextureLost);
-            SDL_FreeSurface(fontSurfaceLost);
-            }
+    else if (gamestate==2)
+        display_text(fontSTART, fColor, 268, 150, "YOU LOSE", renderer);
+
+    else if (gamestate==3)
+        display_text(fontSTART, fColor, 280, 150, "YOU WIN", renderer);
+    
+    else if (gamestate==4){
+        SDL_Rect startmenu_rect = {
+                        100, 50,
+                        600, 500};
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+        SDL_RenderFillRect(renderer, &startmenu_rect);
+        
+        SDL_Rect startmenu_case = {
+                        150, 150,
+                        500, 50};
+        SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+        SDL_RenderFillRect(renderer, &startmenu_case);
+        
+        display_text(fontSTART, fBlack, 170, 150, "1)      Resume", renderer);
+
+        display_text(fontSTART, fColor, 315, 55, "PAUSE", renderer);
     }
 
-    else if (gamestate==3){
-        SDL_Surface* fontSurfaceWin = TTF_RenderText_Solid(fontSTART, "YOU WIN", fColor);
-        if (fontSurfaceWin) {
-            SDL_Texture* fontTextureWin = SDL_CreateTextureFromSurface(renderer, fontSurfaceWin);
-            SDL_Rect fontRecWin = {280, 150, fontSurfaceWin->w, fontSurfaceWin->h};
-            SDL_RenderCopy(renderer, fontTextureWin, NULL, &fontRecWin);
-            SDL_DestroyTexture(fontTextureWin);
-            SDL_FreeSurface(fontSurfaceWin);
-            }
-    }
-    
     SDL_RenderPresent(renderer);
 }
 
@@ -191,3 +214,5 @@ void cleanup(SDL_Window *window, SDL_Renderer *renderer)
         SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+
