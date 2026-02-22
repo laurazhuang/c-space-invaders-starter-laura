@@ -154,7 +154,7 @@ void load_game(Entity_player *player, Niveau *lvl, bool *running, bool *enemy_ac
     FILE *file = fopen("save.txt", "r");  // "r" pour lire, pas "w" !
     if (file == NULL) {
         *running = false;
-        printf("Erreur : fichier save non existant");
+        printf("Erreur : fichier save non existant\n");
         return;
     }
     fscanf(file, "%d", &player->health);

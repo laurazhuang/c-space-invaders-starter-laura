@@ -31,6 +31,7 @@
 
 - La sauvegarde ne sauvegarde que le niveau auquel le joueur est (mais la progression interne dans le niveau est supprimée), ainsi que le nombre de pv du joueur.
 - Lorsque le joueur appuie sur Save Game, il n'y a aucun message affiché mais c'est sauvegardé quand même
+- Si on essaie de load game alors qu'aucune game est save, le jeu s'arrête et un message d'erreur s'affiche
 - Le jeu est très dur à finir (parce qu'il n'y a pas de vitesse max des ennemis et que la vitesse augmente très vite vers la fin) mais il est finissable (je l'ai fini à un pixel près)
 ---
 
