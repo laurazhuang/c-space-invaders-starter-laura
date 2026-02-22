@@ -100,7 +100,7 @@ void spawn_enemies(Entity_enemy enemies[], Niveau lvl){
             //valeurs par défaut
             enemies[index].x = (10+ENEMY_WIDTH)*(i+1); 
             enemies[index].y = (20+ENEMY_HEIGHT)*(j+1);
-            enemies[index].vx = ENEMY_SPEED * (1+0.1*lvl.niv);
+            enemies[index].vx = ENEMY_SPEED * (1+0.2*lvl.niv);
             enemies[index].h = ENEMY_HEIGHT;
             enemies[index].w = ENEMY_WIDTH;
             enemies[index].alive = true;
@@ -172,8 +172,9 @@ void player_is_touched(Entity_bullet *enemy_bullet, Entity_player *player, bool 
 void player_is_healed(Entity_bullet *heart, Entity_player *player, bool *heart_active){
     if(player->x+player->w > heart->x && player->x < heart->x + heart->w && player->y<heart->y+heart->h && player->y + player->h >heart->y)
     {
-        player->health++;
         *heart_active = false;
+        if (player->health<=HEALTH_MAX)
+            player->health++;
     }
 }
 

@@ -65,7 +65,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Entity_bullet heart, bool heart_active, Navigation *navigation, size_t enemy_number_lvl)
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Entity_bullet heart, bool heart_active, Navigation *navigation, size_t enemy_number_lvl, Niveau lvl)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -119,6 +119,11 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             player->w, player->h};
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &player_rect);
+        
+        char niv_str[12];
+        sprintf(niv_str, "%ld", lvl.niv);
+        display_text(font, fColor, 10, 2, "Niveau", renderer);
+        display_text(font, fColor, 130, 2, niv_str, renderer);
 
         for (size_t i = 0; i<enemy_number_lvl ; i++)
         {

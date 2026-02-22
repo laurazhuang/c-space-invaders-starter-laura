@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 //gestion des entrées
-void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active, Navigation *navigation)
+void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active, Navigation *navigation, Niveau *lvl, bool *enemy_active)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -32,7 +32,12 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
                         case NEW_GAME:
                             navigation->gamestate = 1;
                             break;
-                        
+
+                        case LOAD_GAME:
+                            load_game(player, lvl, running, enemy_active);
+                            navigation->gamestate = 1;
+                            break;
+
                         case QUIT:
                             *running = false;
                             break;
@@ -69,8 +74,12 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
                         navigation->gamestate=1;
                         break;
                     
+                    case SAVE_GAME:
+                            save_game(player, lvl);
+                            break;
+
                     case QUIT_GAME:
-                        navigation->gamestate=0;
+                        *running = false;
                         break;
                         
                     default:
@@ -89,6 +98,11 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
 
         if(keys[SDL_SCANCODE_1]){
             navigation->gamestate=1;
+        }
+
+        if (keys[SDL_SCANCODE_2]){
+            load_game(player, lvl, running, enemy_active);
+            navigation->gamestate = 1;
         }
 
         if(keys[SDL_SCANCODE_3]){
@@ -114,7 +128,38 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
             bullet->vy = -BULLET_SPEED;
         }
     }
+
+    else if (navigation->gamestate==4){
+        if (keys[SDL_SCANCODE_1])
+            navigation->gamestate = 1;
+        if (keys[SDL_SCANCODE_2])
+            save_game(player, lvl);
+        if (keys[SDL_SCANCODE_3])
+            *running = false;
+    }
     
 }
 
+//la sauvegarde ne sauvegarde que le nombre de points de vie du joueur ainsi que le niveau auquel il est
+//(notamment, en chargeant la partie, le joueur sera re-trasnporté au début du niveau)
+void save_game(Entity_player *player, Niveau *lvl) {
+    FILE *file = fopen("save.txt", "w");
+    fprintf(file, "%d \n", player->health);
+    fprintf(file, "%ld\n", lvl->niv);
+    fprintf(file, "%ld \n", lvl->nb_enemy_lines);
+    fclose(file); 
+}
 
+void load_game(Entity_player *player, Niveau *lvl, bool *running, bool *enemy_active){
+    FILE *file = fopen("save.txt", "r");  // "r" pour lire, pas "w" !
+    if (file == NULL) {
+        *running = false;
+        printf("Erreur : fichier save non existant");
+        return;
+    }
+    fscanf(file, "%d", &player->health);
+    fscanf(file, "%ld", &lvl->niv);
+    fscanf(file, "%ld", &lvl->nb_enemy_lines);
+    fclose(file);
+    *enemy_active = false;  // Force le re-spawn des ennemis
+}

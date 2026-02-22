@@ -48,12 +48,11 @@ int main(void)
         .nb_enemy_lines = ENEMY_LINES_0,
     };
 
-    bool enemy_active = true;
+    bool enemy_active = false;
     size_t Enemy_number_lvl = lvl.nb_enemy_lines * ENEMY_NUMBER_PER_LINE;
     // alloue pour le nb max d'ennemi (càd niveau 2)
     size_t max_enemies = (ENEMY_LINES_0 + LVL_MAX) * ENEMY_NUMBER_PER_LINE;
     Entity_enemy *enemies = malloc(max_enemies * sizeof(Entity_enemy));
-    spawn_enemies(enemies, lvl);
     size_t killcount = 0;
 
     fontInit();
@@ -73,12 +72,12 @@ int main(void)
         }
 
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active, &navigation);
+        handle_input(&running, keys, &player, &bullet, &bullet_active, &navigation, &lvl, &enemy_active);
         if(navigation.gamestate==1){
             update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active, &heart_active, &heart, Enemy_number_lvl);
         }
 
-        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active, heart, heart_active, &navigation, Enemy_number_lvl);
+        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active, heart, heart_active, &navigation, Enemy_number_lvl, lvl);
         
         
         if (bullet_active)
