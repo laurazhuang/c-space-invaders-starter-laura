@@ -56,7 +56,24 @@ typedef enum {
     NEW_GAME,
     LOAD_GAME,
     QUIT,
-} Menustate;
+} StartMenu;
+
+typedef enum {
+    RESUME,
+    SAVE_GAME,
+    QUIT_GAME,
+} PauseMenu;
+
+typedef struct {
+    StartMenu startmenu;
+    PauseMenu pausemenu;
+    Gamestate gamestate;
+} Navigation;
+
+typedef struct {
+    int Nb_enemy;
+    float v_enemy;
+}Niveau;
 
 #endif
 

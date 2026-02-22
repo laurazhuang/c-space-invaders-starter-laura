@@ -65,12 +65,13 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Gamestate gamestate, Entity_bullet heart, bool heart_active, Menustate *menustate)
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Entity_bullet heart, bool heart_active, Navigation *navigation)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    if (gamestate==0){
+//menu de lancement (startmenu)
+    if (navigation->gamestate==0){
         SDL_Rect startmenu_rect = {
                         100, 50,
                         600, 500};
@@ -86,12 +87,12 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
         display_text(fontSTART, fColor, 170, 350, "3)      QUIT", renderer);
         
         SDL_Rect menu_case = {
-                        150, 150 + (*menustate) * 100,
+                        150, 150 + (navigation->startmenu) * 100,
                         500, 50};
             SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
             SDL_RenderFillRect(renderer, &menu_case);
 
-        switch (*menustate)
+        switch (navigation->startmenu)
         {
         case NEW_GAME:
             display_text(fontSTART, fBlack, 170, 150, "1)      NEW GAME", renderer);
@@ -109,7 +110,9 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
 
         
     }
-    else if (gamestate==1) {
+
+//écran de jeu
+    else if (navigation->gamestate==1) {
 
         SDL_Rect player_rect = {
             (int)player->x, (int)player->y,
@@ -179,13 +182,16 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
         
     }
 
-    else if (gamestate==2)
+//écran de défaite
+    else if (navigation->gamestate==2)
         display_text(fontSTART, fColor, 268, 150, "YOU LOSE", renderer);
 
-    else if (gamestate==3)
+//écran de victoire
+    else if (navigation->gamestate==3)
         display_text(fontSTART, fColor, 280, 150, "YOU WIN", renderer);
     
-    else if (gamestate==4){
+//menu de pause (pausemenu)
+    else if (navigation->gamestate==4){
         SDL_Rect startmenu_rect = {
                         100, 50,
                         600, 500};
@@ -193,14 +199,33 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
         SDL_RenderFillRect(renderer, &startmenu_rect);
         
         SDL_Rect startmenu_case = {
-                        150, 150,
+                        150, 150 + navigation->pausemenu*100,
                         500, 50};
         SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
         SDL_RenderFillRect(renderer, &startmenu_case);
         
-        display_text(fontSTART, fBlack, 170, 150, "1)      Resume", renderer);
+        display_text(fontSTART, fColor, 170, 150, "1)      RESUME", renderer);
 
-        display_text(fontSTART, fColor, 315, 55, "PAUSE", renderer);
+        display_text(fontSTART, fColor, 315, 55, "Pause", renderer);
+
+        display_text(fontSTART, fColor, 170, 250, "2)     SAVE GAME", renderer);
+
+        display_text(fontSTART, fColor, 170, 350, "3)     QUIT", renderer);
+
+        switch (navigation->pausemenu)
+        {
+        case RESUME:
+            display_text(fontSTART, fBlack, 170, 150, "1)      RESUME", renderer);
+            break;
+        
+        case LOAD_GAME:
+            display_text(fontSTART, fBlack, 170, 250, "2)     SAVE GAME", renderer);
+            break;
+        
+        case QUIT:
+            display_text(fontSTART, fBlack, 170, 350, "3)     QUIT", renderer);
+        }
+
     }
 
     SDL_RenderPresent(renderer);

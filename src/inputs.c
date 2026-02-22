@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 //gestion des entrées
-void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active, Gamestate *gamestate, Menustate *menustate)
+void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entity_bullet *bullet, bool *bullet_active, Navigation *navigation)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -12,25 +12,25 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
             *running = false;
         
         // Navigation du menu (pour éviter d'appuyer 20 fois sur la même touche)
-        if (*gamestate == 0 && event.type == SDL_KEYDOWN && !event.key.repeat)
+        if (navigation->gamestate == 0 && event.type == SDL_KEYDOWN && !event.key.repeat)
         {
             switch (event.key.keysym.scancode)
             {
                 case SDL_SCANCODE_UP:
-                    if (*menustate > NEW_GAME)
-                        (*menustate)--;
+                    if (navigation->startmenu > NEW_GAME)
+                        (navigation->startmenu)--;
                     break;
 
                 case SDL_SCANCODE_DOWN:
-                    if (*menustate < QUIT)
-                        (*menustate)++;
+                    if (navigation->startmenu < QUIT)
+                        (navigation->startmenu)++;
                     break;
 
                 case SDL_SCANCODE_RETURN:
-                    switch (*menustate)
+                    switch (navigation->startmenu)
                     {
                         case NEW_GAME:
-                            *gamestate = 1;
+                            navigation->gamestate = 1;
                             break;
                         
                         case QUIT:
@@ -46,17 +46,49 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
                     break;
             }
         }
-        else if (*gamestate == 1 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
-            *gamestate=4;
+        else if (navigation->gamestate == 1 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
+            navigation->gamestate=4;
         
-        else if (*gamestate == 4 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
-            *gamestate=1;
+        else if (navigation->gamestate == 4 && event.type == SDL_KEYDOWN && !event.key.repeat)
+        {
+            switch (event.key.keysym.scancode)
+            {
+                case SDL_SCANCODE_UP :
+                    if (navigation->pausemenu > RESUME)
+                        navigation->pausemenu--;
+                    break;
+                case SDL_SCANCODE_DOWN :
+                    if (navigation->pausemenu < QUIT_GAME)
+                        navigation->pausemenu++;
+                    break;
+                
+                case SDL_SCANCODE_RETURN :
+                    switch (navigation->pausemenu)
+                    {
+                    case RESUME:
+                        navigation->gamestate=1;
+                        break;
+                    
+                    case QUIT_GAME:
+                        navigation->gamestate=0;
+                        break;
+                        
+                    default:
+                        break;
+                    }
+
+                default :
+                    break;
+            }
+            
+            }
+
     }
 
-    if(*gamestate==0){
+    if(navigation->gamestate==0){
 
         if(keys[SDL_SCANCODE_1]){
-            *gamestate=1;
+            navigation->gamestate=1;
         }
 
         if(keys[SDL_SCANCODE_3]){
@@ -65,7 +97,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity_player *player, Entit
         
         
     }
-    else if (*gamestate==1){
+    else if (navigation->gamestate==1){
         player->vx = 0.0f;
         if (keys[SDL_SCANCODE_LEFT])
             player->vx = -PLAYER_SPEED;

@@ -11,8 +11,7 @@ int main(void)
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
 
-    Gamestate gamestate = 0;
-    Menustate menustate = 0;
+    Navigation navigation = {0};
 
     if (!init(&window, &renderer))
     {
@@ -60,12 +59,12 @@ int main(void)
         last_ticks = ticks;
 
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active, &gamestate, &menustate);
-        if(gamestate==1){
+        handle_input(&running, keys, &player, &bullet, &bullet_active, &navigation);
+        if(navigation.gamestate==1){
             update(&player, &bullet, &bullet_active, dt, enemies, &enemy_bullet, &enemy_bullet_active, &heart_active, &heart);
         }
 
-        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active, gamestate, heart, heart_active, &menustate);
+        render(renderer, &player, &bullet, bullet_active, enemies, &enemy_bullet, enemy_bullet_active, heart, heart_active, &navigation);
         
         
         if (bullet_active)
@@ -89,11 +88,11 @@ int main(void)
 
 //vérifie la condition de victoire
         if (killcount >= ENEMY_NUMBER){
-            gamestate = 3;
+            navigation.gamestate = 3;
         }
 //vérifie la condition de défaite
         if (has_lost(enemies, &player)){
-            gamestate = 2;
+            navigation.gamestate = 2;
         }
     }
 
