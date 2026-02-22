@@ -3,7 +3,8 @@
 ## 🎮 Commandes
 - Le joueur peut bouger en utilisant les flèches directionnelles
 - Il peut tirer un missile à la fois (comme dans le jeu originel) avec espace
-- Pour naviguer dans les menus, il faut appuyer sur les touches directionnelles et une fois la bonne option sélectionnée il faut appuyer sur entrée  
+- Pour naviguer dans les menus, il faut appuyer sur les touches directionnelles et une fois la bonne option sélectionnée il faut appuyer sur entrée
+- Il y a aussi l'option d'appuyer sur les nombres du clavier correspondant aux différentes options (je suis sur qwerty je ne sais pas si ça fonctionne en azerty)
 
 # 💬 Commentaire sur les fonctionnalitées attendues :
 
