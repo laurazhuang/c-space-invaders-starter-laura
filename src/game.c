@@ -6,14 +6,14 @@
 //logique de jeu
 
 //détermine si l'ennemi doit tirer
-void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *ticks_depuis_dernier_tir, Entity_enemy *enemies)
+void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *ticks_depuis_dernier_tir, Entity_enemy *enemies, size_t enemy_number_lvl)
 {
     if (*ticks_depuis_dernier_tir > 500){
         *enemy_bullet_active = true;
-        int i_enemies_alive[ENEMY_NUMBER];
+        int i_enemies_alive[enemy_number_lvl];
         int nb_enemies_alive = 0;
         //on compte le nombre d'ennemis vivants et on stocke leur i dans un tableau
-        for (size_t i = 0; i<ENEMY_NUMBER; i++){
+        for (size_t i = 0; i<enemy_number_lvl; i++){
             if (enemies[i].alive){
                 i_enemies_alive[nb_enemies_alive] = i;
                 nb_enemies_alive++;
@@ -33,7 +33,7 @@ void enemy_tire(bool *enemy_bullet_active, Entity_bullet *enemy_bullet, int *tic
 }
 
 //update toutes les positions du joueur, des ennemis et des bullet
-void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active, bool *heart_active, Entity_bullet *heart)
+void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, float dt, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool *enemy_bullet_active, bool *heart_active, Entity_bullet *heart, size_t enemy_number_lvl)
 {
     player->x += player->vx * dt;
 
@@ -66,13 +66,13 @@ void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, f
 
     //le mouvement des ennemis : il faut que si l'ennemi touche le bord, alors ils descendent tous + vitesse incrémentale
     bool touche_bord = false;
-    for(size_t i=0; i<ENEMY_NUMBER; i++){
+    for(size_t i=0; i<enemy_number_lvl; i++){
         if ((enemies[i].x<0 || (enemies[i].x+ENEMY_WIDTH) > SCREEN_WIDTH) && enemies[i].alive) {
             touche_bord = true;
             break;
         }
     }
-    for(size_t i=0; i<ENEMY_NUMBER; i++){
+    for(size_t i=0; i<enemy_number_lvl; i++){
         if (touche_bord && enemies[i].alive){
             enemies[i].vx = -(enemies[i].vx*1.1);
             enemies[i].y += enemies[i].saut;
@@ -91,16 +91,16 @@ void update(Entity_player *player, Entity_bullet *bullet, bool *bullet_active, f
 
 
 //fait spawn les ennemis sur une grille
-void spawn_enemies(Entity_enemy enemies[]){
-    for(size_t j=0; j<ENEMY_LINES; j++)
+void spawn_enemies(Entity_enemy enemies[], Niveau lvl){
+    for(size_t j=0; j < lvl.nb_enemy_lines; j++)
     {
-        for(size_t i=0; i<ENEMY_NUMBER_PER_LINE; i++)
+        for(size_t i=0; i < ENEMY_NUMBER_PER_LINE; i++)
         {
             size_t index = i+j*ENEMY_NUMBER_PER_LINE;
             //valeurs par défaut
             enemies[index].x = (10+ENEMY_WIDTH)*(i+1); 
             enemies[index].y = (20+ENEMY_HEIGHT)*(j+1);
-            enemies[index].vx = ENEMY_SPEED;
+            enemies[index].vx = ENEMY_SPEED * (1+0.1*lvl.niv);
             enemies[index].h = ENEMY_HEIGHT;
             enemies[index].w = ENEMY_WIDTH;
             enemies[index].alive = true;
@@ -113,7 +113,7 @@ void spawn_enemies(Entity_enemy enemies[]){
                 enemies[index].saut = ENEMY_HEIGHT*1.9;
                 enemies[index].w = ENEMY_WIDTH*0.8;
             }
-            else if(j==0 || j+i%3==0){
+            else if(j < (lvl.niv+1)){
                 enemies[index].type = 2;
                 enemies[index].health = 2;
             }
@@ -138,10 +138,10 @@ void spawn_heart(bool *heart_active, Entity_bullet *heart, Entity_enemy *enemies
 }
 
 //détermine si l'ennemi est touché par le tir du joueur
-void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool *bullet_active, bool *heart_active, Entity_bullet *heart)
+void enemy_is_touched(Entity_bullet *bullet, Entity_enemy *enemies, size_t *killcount, bool *bullet_active, bool *heart_active, Entity_bullet *heart, size_t enemy_number_lvl)
 {
 
-    for (size_t i=0; i<ENEMY_NUMBER; i++)
+    for (size_t i=0; i<enemy_number_lvl; i++)
     {
         // ce long if vérifie si la balle touche bien l'ennemi et si l'ennemi est bien vivant
         if (bullet->x < (enemies[i].x + enemies[i].w) && bullet->y < (enemies[i].y + enemies[i].h) && (enemies[i].x < (bullet->x + bullet->w)) && (enemies[i].y < bullet->y + bullet->h) && (enemies[i].alive))
@@ -178,8 +178,8 @@ void player_is_healed(Entity_bullet *heart, Entity_player *player, bool *heart_a
 }
 
 //détermine si le joueur a perdu, soit parce que les ennemis ont atteint le bas, soit parce qu'il n'a plus de vie
-bool has_lost(Entity_enemy *enemies, Entity_player *player){
-    for (size_t i=0; i<ENEMY_NUMBER; i++){
+bool has_lost(Entity_enemy *enemies, Entity_player *player, size_t enemy_number_lvl){
+    for (size_t i=0; i<enemy_number_lvl; i++){
         if (enemies[i].y>600){
             return true;
         }

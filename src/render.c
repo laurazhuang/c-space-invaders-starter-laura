@@ -65,7 +65,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Entity_bullet heart, bool heart_active, Navigation *navigation)
+void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet, bool bullet_active, Entity_enemy enemies[], Entity_bullet *enemy_bullet, bool enemy_bullet_active, Entity_bullet heart, bool heart_active, Navigation *navigation, size_t enemy_number_lvl)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -120,7 +120,7 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &player_rect);
 
-        for (size_t i = 0; i<ENEMY_NUMBER ; i++)
+        for (size_t i = 0; i<enemy_number_lvl ; i++)
         {
             if(enemies[i].alive)
             {
@@ -151,6 +151,7 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_FreeSurface(surface);
             SDL_RenderCopy(renderer, texture, NULL, &healthpool);
+            SDL_DestroyTexture(texture);
         }
 
         if (bullet_active)
@@ -178,6 +179,7 @@ void render(SDL_Renderer *renderer, Entity_player *player, Entity_bullet *bullet
             SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_FreeSurface(surface);
             SDL_RenderCopy(renderer, texture, NULL, &heart_rect);
+            SDL_DestroyTexture(texture);
         }
         
     }

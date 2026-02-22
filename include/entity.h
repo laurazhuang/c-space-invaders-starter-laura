@@ -71,8 +71,8 @@ typedef struct {
 } Navigation;
 
 typedef struct {
-    int Nb_enemy;
-    float v_enemy;
+    size_t niv;
+    size_t nb_enemy_lines;
 }Niveau;
 
 #endif
