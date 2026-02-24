@@ -151,7 +151,7 @@ void save_game(Entity_player *player, Niveau *lvl) {
 }
 
 void load_game(Entity_player *player, Niveau *lvl, bool *running, bool *enemy_active){
-    FILE *file = fopen("save.txt", "r");  // "r" pour lire, pas "w" !
+    FILE *file = fopen("save.txt", "r"); 
     if (file == NULL) {
         *running = false;
         printf("Erreur : fichier save non existant\n");
@@ -161,5 +161,5 @@ void load_game(Entity_player *player, Niveau *lvl, bool *running, bool *enemy_ac
     fscanf(file, "%ld", &lvl->niv);
     fscanf(file, "%ld", &lvl->nb_enemy_lines);
     fclose(file);
-    *enemy_active = false;  // Force le re-spawn des ennemis
+    *enemy_active = false;  // force respawn des ennemis dans la boucle while du main()
 }

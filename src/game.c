@@ -125,6 +125,7 @@ void spawn_enemies(Entity_enemy enemies[], Niveau lvl){
     
 }
 
+// 1 chance sur 10 de spawn un coeur à la mort
 void spawn_heart(bool *heart_active, Entity_bullet *heart, Entity_enemy *enemies, size_t i){
     int spawn_or_not = rand() % 10;
     if(*heart_active==0 && spawn_or_not==0){
